@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth0 } from '../contexts/Auth0Context';
 import { User, Users, Shield, Plus, Trash2, Eye, EyeOff } from 'lucide-react';
 import Layout from '../components/Layout';
 
@@ -18,7 +18,7 @@ interface OperatorAccount {
 }
 
 export default function SettingsPage() {
-  const { user, hasPermission, logout } = useAuth();
+  const { user, hasPermission, logout } = useAuth0();
   const router = useRouter();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newOperator, setNewOperator] = useState({

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth0 } from '../contexts/Auth0Context';
 import { useRouter } from 'next/navigation';
 import { 
   Camera, Plus, Edit, Trash2, Eye, EyeOff,
@@ -32,7 +32,7 @@ interface CameraData {
 }
 
 export default function CamerasPage() {
-  const { hasPermission } = useAuth();
+  const { hasPermission } = useAuth0();
   const [cameras, setCameras] = useState<CameraData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

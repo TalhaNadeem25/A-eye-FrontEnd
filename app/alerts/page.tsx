@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth0 } from '../contexts/Auth0Context';
 import { useRouter } from 'next/navigation';
 import { 
   AlertTriangle, Search, RefreshCw, Download, 
@@ -32,7 +32,7 @@ interface AlertData {
 }
 
 export default function AlertsPage() {
-  const { hasPermission } = useAuth();
+  const { hasPermission } = useAuth0();
   const [alerts, setAlerts] = useState<AlertData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

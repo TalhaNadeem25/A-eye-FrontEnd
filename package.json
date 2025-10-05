@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@auth0/nextjs-auth0": "^4.10.0",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.544.0",
     "next": "15.5.4",

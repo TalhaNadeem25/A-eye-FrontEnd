@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth0 } from '../contexts/Auth0Context';
 import { Shield, AlertTriangle, Users, MapPin, Clock, RefreshCw, TrendingUp, TrendingDown, Download, Search } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import Layout from '../components/Layout';
@@ -44,7 +44,7 @@ interface LoginInsightsData {
 }
 
 export default function SecurityPage() {
-  const { hasPermission } = useAuth();
+  const { hasPermission } = useAuth0();
   const router = useRouter();
   const [data, setData] = useState<LoginInsightsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);

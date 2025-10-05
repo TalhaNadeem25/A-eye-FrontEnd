@@ -2,12 +2,12 @@
 
 import Layout from '../components/Layout';
 import TestTrigger from '../components/TestTrigger';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth0 } from '../contexts/Auth0Context';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function TestPage() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth0();
   const router = useRouter();
   const [testAlerts, setTestAlerts] = useState<any[]>([]);
 

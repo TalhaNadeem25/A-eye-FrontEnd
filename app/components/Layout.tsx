@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Menu, X, LogOut, Settings, Camera, AlertTriangle, User, Shield } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth0 } from '../contexts/Auth0Context';
 import { useRouter, usePathname } from 'next/navigation';
 // import NotificationSystem, { useNotifications } from './NotificationSystem';
 
@@ -12,14 +12,14 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user, logout, hasPermission } = useAuth();
+  const { user, logout, hasPermission } = useAuth0();
   const router = useRouter();
   const pathname = usePathname();
   // const { notifications, markAsRead, dismiss, clearAll } = useNotifications();
 
-  const handleLogout = () => {
-    logout();
-    router.push('/login');
+  const handleLogout = async () => {
+    await logout();
+    // logout() already handles the redirect, so no need for router.push
   };
 
   // Function to check if a link is active

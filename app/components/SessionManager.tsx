@@ -2,27 +2,47 @@
 
 import { useState } from 'react';
 import { Shield, MapPin, Monitor, Clock, AlertTriangle, X, RefreshCw, LogOut } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth0 } from '../contexts/Auth0Context';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 
 export default function SessionManager() {
-  const { user, sessions, revokeSession, revokeAllSessions, logout, hasPermission } = useAuth();
+  const { user, logout, hasPermission } = useAuth0();
   const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter();
 
-  const handleLogout = () => {
-    logout();
-    router.push('/login');
+  const handleLogout = async () => {
+    await logout();
+    // logout() already handles the redirect
   };
 
   if (!hasPermission('view_sessions')) {
     return null;
   }
 
-  const activeSessions = sessions.filter(s => s.status === 'active');
-  const expiredSessions = sessions.filter(s => s.status === 'expired');
-  const revokedSessions = sessions.filter(s => s.status === 'revoked');
+  // Mock session data for now - in a real app, this would come from an API
+  const mockSessions = [
+    {
+      id: 'session-1',
+      device: 'Chrome on Windows',
+      location: 'Austin, TX',
+      ipAddress: '192.168.1.100',
+      lastActivity: new Date(),
+      status: 'active' as const
+    },
+    {
+      id: 'session-2', 
+      device: 'Safari on iPhone',
+      location: 'Dallas, TX',
+      ipAddress: '192.168.1.101',
+      lastActivity: new Date(Date.now() - 3600000),
+      status: 'active' as const
+    }
+  ];
+
+  const activeSessions = mockSessions.filter(s => s.status === 'active');
+  const expiredSessions: any[] = [];
+  const revokedSessions: any[] = [];
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -40,6 +60,17 @@ export default function SessionManager() {
       case 'revoked': return <div className="w-2 h-2 bg-destructive rounded-full" />;
       default: return <div className="w-2 h-2 bg-muted rounded-full" />;
     }
+  };
+
+  // Mock functions for session management
+  const revokeSession = (sessionId: string) => {
+    console.log('Revoking session:', sessionId);
+    // In a real app, this would call an API to revoke the session
+  };
+
+  const revokeAllSessions = () => {
+    console.log('Revoking all sessions');
+    // In a real app, this would call an API to revoke all sessions
   };
 
   return (

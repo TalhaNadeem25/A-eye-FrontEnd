@@ -3,11 +3,11 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Camera } from 'lucide-react';
-import { useAuth } from './contexts/AuthContext';
+import { useAuth0 } from './contexts/Auth0Context';
 
 export default function Home() {
   const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth0();
 
   useEffect(() => {
     if (!isLoading) {
@@ -31,8 +31,22 @@ export default function Home() {
           Surveillance Dashboard
         </h1>
         <p className="text-muted-foreground mb-4">
-          Redirecting to login...
+          Redirecting to authentication...
         </p>
+        <div className="flex space-x-4 justify-center">
+          <a
+            href="/login"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+          >
+            Sign In
+          </a>
+          <a
+            href="/signup"
+            className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 transition-colors"
+          >
+            Sign Up
+          </a>
+        </div>
         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
       </div>
     </div>

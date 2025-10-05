@@ -4,14 +4,16 @@ import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import CameraFeed from '../components/CameraFeed';
 import WebcamFeed from '../components/WebcamFeed';
+import DirectVideoStream from '../components/DirectVideoStream';
 import MotionDetectionDemo from '../components/MotionDetectionDemo';
 import TestTrigger from '../components/TestTrigger';
 import AlertPanel from '../components/AlertPanel';
 import AudioPlayer from '../components/AudioPlayer';
 import SessionManager from '../components/SessionManager';
 import LoginInsights from '../components/LoginInsights';
+import RoleDebug from '../components/RoleDebug';
 import { Activity, Camera, AlertTriangle, Users } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth0 } from '../contexts/Auth0Context';
 import { useRouter } from 'next/navigation';
 
 // Mock data for demonstration
@@ -63,7 +65,7 @@ export default function DashboardPage() {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [currentAudioUrl, setCurrentAudioUrl] = useState<string | undefined>();
   const [webcamAlerts, setWebcamAlerts] = useState<any[]>([]);
-  const { hasPermission, isAuthenticated, isLoading } = useAuth();
+  const { hasPermission, isAuthenticated, isLoading } = useAuth0();
   const router = useRouter();
 
   // Route guard - redirect to login if not authenticated
@@ -228,6 +230,18 @@ export default function DashboardPage() {
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* External Security Camera */}
+              <DirectVideoStream
+                cameraId="EXT-001"
+                cameraName="Sentinel AI Security Camera"
+                cameraUrl="https://sentinelai.crisiscopilot.tech/video_feed"
+                isOnline={true}
+                hasAlert={false}
+                alertLevel="low"
+                onMotionDetected={handleWebcamMotion}
+                onAlert={handleWebcamAlert}
+              />
+              
               {/* Real Webcam Feed */}
               <WebcamFeed
                 cameraId="WEBCAM-001"
@@ -264,6 +278,9 @@ export default function DashboardPage() {
               onAcknowledge={handleAcknowledge}
               onDismiss={handleDismiss}
             />
+            
+            {/* Role Debug - Temporary for debugging */}
+            <RoleDebug />
             
             {/* Login Insights - Only for Managers */}
             {hasPermission('view_sessions') && (
