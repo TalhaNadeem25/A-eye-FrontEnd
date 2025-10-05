@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Shield, MapPin, Monitor, Clock, AlertTriangle, X, RefreshCw, LogOut } from 'lucide-react';
-import { useAuth, SessionInfo } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 

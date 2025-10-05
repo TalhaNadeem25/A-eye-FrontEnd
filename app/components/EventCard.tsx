@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Play, Pause, Volume2, VolumeX, Check, X, AlertTriangle, Clock, Camera } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Check, X, Clock, Camera } from 'lucide-react';
 import { format } from 'date-fns';
+import Image from 'next/image';
 
 interface EventCardProps {
   id: string;
@@ -76,9 +77,11 @@ export default function EventCard({
 
       {/* Alert Image */}
       <div className="relative mb-3">
-        <img
+        <Image
           src={imageUrl}
           alt="Alert detection"
+          width={400}
+          height={128}
           className="w-full h-32 object-cover rounded-md"
         />
         <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground px-2 py-1 rounded text-xs font-medium">

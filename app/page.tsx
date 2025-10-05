@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Camera, Shield, Eye } from 'lucide-react';
+import { Camera } from 'lucide-react';
 import { useAuth } from './contexts/AuthContext';
 
 export default function Home() {

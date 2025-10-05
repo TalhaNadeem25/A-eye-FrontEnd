@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Menu, X, LogOut, Settings, Camera, AlertTriangle, User } from 'lucide-react';
+import { Menu, X, LogOut, Settings, Camera, AlertTriangle, User, Shield } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+// import NotificationSystem, { useNotifications } from './NotificationSystem';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -13,10 +14,29 @@ export default function Layout({ children }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout, hasPermission } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+  // const { notifications, markAsRead, dismiss, clearAll } = useNotifications();
 
   const handleLogout = () => {
     logout();
     router.push('/login');
+  };
+
+  // Function to check if a link is active
+  const isActiveLink = (path: string) => {
+    if (path === '/dashboard') {
+      return pathname === '/dashboard' || pathname === '/';
+    }
+    return pathname === path;
+  };
+
+  // Function to get link classes based on active state
+  const getLinkClasses = (path: string) => {
+    const baseClasses = "flex items-center space-x-3 px-3 py-2 rounded-md transition-all duration-300 hover-lift";
+    const activeClasses = "bg-primary text-primary-foreground";
+    const inactiveClasses = "hover:bg-muted cyber-border";
+    
+    return `${baseClasses} ${isActiveLink(path) ? activeClasses : inactiveClasses}`;
   };
 
   return (
@@ -47,6 +67,12 @@ export default function Layout({ children }: LayoutProps) {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              {/* <NotificationSystem
+                notifications={notifications}
+                onMarkAsRead={markAsRead}
+                onDismiss={dismiss}
+                onClearAll={clearAll}
+              /> */}
               {user && (
                 <div className="flex items-center space-x-2 text-sm">
                   <User size={16} className="text-primary" />
@@ -73,26 +99,36 @@ export default function Layout({ children }: LayoutProps) {
         <aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-64 glassmorphism border-r border-border transition-transform duration-200 ease-in-out`}>
           <div className="p-4">
             <nav className="space-y-2">
-              <a href="/dashboard" className="flex items-center space-x-3 px-3 py-2 rounded-md bg-primary text-primary-foreground hover-lift transition-all duration-300">
+              <a href="/dashboard" className={getLinkClasses('/dashboard')}>
                 <Camera size={20} />
                 <span>Dashboard</span>
               </a>
               {hasPermission('manage_cameras') && (
-                <a href="/cameras" className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted hover-lift transition-all duration-300 cyber-border">
+                <a href="/cameras" className={getLinkClasses('/cameras')}>
                   <Camera size={20} />
                   <span>Cameras</span>
                 </a>
               )}
-              <a href="/alerts" className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted hover-lift transition-all duration-300 cyber-border">
+              <a href="/alerts" className={getLinkClasses('/alerts')}>
                 <AlertTriangle size={20} />
                 <span>Alerts</span>
               </a>
-              {hasPermission('system_settings') && (
-                <a href="/settings" className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted hover-lift transition-all duration-300 cyber-border">
-                  <Settings size={20} />
-                  <span>Settings</span>
+              {hasPermission('view_sessions') && (
+                <a href="/security" className={getLinkClasses('/security')}>
+                  <Shield size={20} />
+                  <span>Security</span>
                 </a>
               )}
+                  {hasPermission('system_settings') && (
+                    <a href="/settings" className={getLinkClasses('/settings')}>
+                      <Settings size={20} />
+                      <span>Settings</span>
+                    </a>
+                  )}
+                  <a href="/test" className={getLinkClasses('/test')}>
+                    <AlertTriangle size={20} />
+                    <span>Test Alerts</span>
+                  </a>
             </nav>
           </div>
         </aside>

@@ -108,7 +108,8 @@ const permissions = {
     'view_sessions',
     'revoke_sessions',
     'access_logs',
-    'system_settings'
+    'system_settings',
+    'manage_settings'
   ],
   operator: [
     'view_dashboard',
@@ -124,9 +125,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Check for existing session on mount
+    console.log('AuthContext useEffect - checking for saved user');
     const savedUser = localStorage.getItem('surveillance_user');
     if (savedUser) {
+      console.log('Found saved user:', savedUser);
       setUser(JSON.parse(savedUser));
+    } else {
+      console.log('No saved user found');
     }
     setIsLoading(false);
   }, []);

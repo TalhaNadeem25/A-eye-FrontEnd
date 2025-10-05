@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Play, Pause, Volume2, VolumeX, Maximize2, AlertTriangle } from 'lucide-react';
+import Image from 'next/image';
 
 interface CameraFeedProps {
   cameraId: string;
@@ -72,10 +73,11 @@ export default function CameraFeed({
       <div className="relative aspect-video bg-muted">
         {isOnline ? (
           <div className="relative w-full h-full">
-            <img
+            <Image
               src={getCameraImage()}
               alt={`Camera ${cameraId} feed`}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
             />
             
             {/* Play/Pause Overlay */}

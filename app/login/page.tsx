@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const auth = useAuth();
   const [selectedRole, setSelectedRole] = useState<'manager' | 'operator'>('manager');
   const [showBiometric, setShowBiometric] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(true);
@@ -45,25 +46,14 @@ export default function LoginPage() {
   };
 
   const handleBiometricSuccess = async (user: BiometricUser | WindowsHelloUser) => {
-    // Convert biometric user to auth user format
-    const authUser = {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      lastLogin: new Date(),
-      sessionId: `sess_${Date.now()}`,
-      ipAddress: '192.168.1.100',
-      location: 'Austin, TX',
-      device: 'Windows Hello Authentication'
-    };
-
-    // Simulate the login process
+    // Convert biometric user to auth user format and login
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+    const success = await auth.login(user.email, 'biometric');
+    if (success) {
       router.push('/dashboard');
-    }, 1000);
+    } else {
+      setIsLoading(false);
+    }
   };
 
   const handleBiometricError = (error: string) => {
@@ -76,10 +66,6 @@ export default function LoginPage() {
     setShowPasswordForm(true);
   };
 
-  const handleShowBiometric = () => {
-    setShowPasswordForm(false);
-    setShowBiometric(true);
-  };
 
   const handleShowWindowsHello = () => {
     setShowPasswordForm(false);

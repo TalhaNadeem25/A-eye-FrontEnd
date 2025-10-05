@@ -50,20 +50,13 @@ class BiometricAuthService {
     if (!this.isSupported()) return false;
     
     try {
-      // Check for Windows Hello / platform authenticators
-      const available = await navigator.credentials.isConditionalMediationAvailable();
+      // Check for platform authenticators (Windows Hello, Touch ID, etc.)
+      const isWindows = navigator.userAgent.includes('Windows');
+      const hasTouchID = navigator.userAgent.includes('Macintosh');
+      const hasAndroid = navigator.userAgent.includes('Android');
       
-      // Additional check for Windows Hello
-      if (available) {
-        // Try to detect Windows Hello specifically
-        const isWindows = navigator.userAgent.includes('Windows');
-        const hasTouchID = navigator.userAgent.includes('Macintosh');
-        const hasAndroid = navigator.userAgent.includes('Android');
-        
-        return isWindows || hasTouchID || hasAndroid;
-      }
-      
-      return available;
+      // Basic platform detection for biometric support
+      return isWindows || hasTouchID || hasAndroid;
     } catch (error) {
       console.log('Biometric authentication not available:', error);
       return false;
@@ -71,7 +64,7 @@ class BiometricAuthService {
   }
 
   // Register a new biometric credential
-  async register(userId: string, userName: string, userEmail: string): Promise<boolean> {
+  async register(userId: string, userName: string): Promise<boolean> {
     if (!this.isSupported()) {
       throw new Error('WebAuthn not supported');
     }
@@ -115,7 +108,7 @@ class BiometricAuthService {
         // Store the credential
         const credentialData: BiometricCredential = {
           id: credential.id,
-          publicKey: Array.from(new Uint8Array(credential.response as ArrayBuffer)).join(','),
+          publicKey: 'demo-public-key', // Simplified for demo purposes
           userId: userId,
           userHandle: userName,
           counter: 0,

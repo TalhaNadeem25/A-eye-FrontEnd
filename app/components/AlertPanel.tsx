@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, Filter, Search, RefreshCw } from 'lucide-react';
+import { AlertTriangle, Search, RefreshCw } from 'lucide-react';
 import EventCard from './EventCard';
 
 interface Alert {
@@ -78,7 +78,7 @@ export default function AlertPanel({ alerts, onAcknowledge, onDismiss }: AlertPa
           ].map(({ key, label, count }) => (
             <button
               key={key}
-              onClick={() => setFilter(key as any)}
+              onClick={() => setFilter(key as 'all' | 'new' | 'acknowledged' | 'dismissed')}
               className={`flex-1 px-3 py-1 rounded text-xs font-medium transition-colors ${
                 filter === key
                   ? 'bg-background text-foreground shadow-sm'

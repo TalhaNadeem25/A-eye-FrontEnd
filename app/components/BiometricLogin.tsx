@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Fingerprint, Face, Shield, AlertCircle, CheckCircle } from 'lucide-react';
+import { Fingerprint, Shield, AlertCircle, CheckCircle } from 'lucide-react';
 import { biometricAuth, BiometricUser } from '../services/BiometricAuth';
 
 interface BiometricLoginProps {

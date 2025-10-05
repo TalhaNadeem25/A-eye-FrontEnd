@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Fingerprint, Face, Shield, CheckCircle, AlertCircle } from 'lucide-react';
+import { Fingerprint, User, Shield, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function BiometricDemo() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -44,7 +44,7 @@ export default function BiometricDemo() {
             <span className="text-sm font-medium">Fingerprint</span>
           </div>
           <div className="flex items-center space-x-2 p-3 bg-muted/50 rounded-lg">
-            <Face className="text-primary" size={20} />
+            <User className="text-primary" size={20} />
             <span className="text-sm font-medium">Face ID</span>
           </div>
         </div>

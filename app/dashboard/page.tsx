@@ -3,10 +3,14 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import CameraFeed from '../components/CameraFeed';
+import WebcamFeed from '../components/WebcamFeed';
+import MotionDetectionDemo from '../components/MotionDetectionDemo';
+import TestTrigger from '../components/TestTrigger';
 import AlertPanel from '../components/AlertPanel';
 import AudioPlayer from '../components/AudioPlayer';
 import SessionManager from '../components/SessionManager';
-import { Activity, Camera, AlertTriangle, Users, Shield } from 'lucide-react';
+import LoginInsights from '../components/LoginInsights';
+import { Activity, Camera, AlertTriangle, Users } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -58,11 +62,13 @@ export default function DashboardPage() {
   const [alerts, setAlerts] = useState(mockAlerts);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [currentAudioUrl, setCurrentAudioUrl] = useState<string | undefined>();
-  const { user, hasPermission, isAuthenticated, isLoading } = useAuth();
+  const [webcamAlerts, setWebcamAlerts] = useState<any[]>([]);
+  const { hasPermission, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
   // Route guard - redirect to login if not authenticated
   useEffect(() => {
+    console.log('Dashboard useEffect - isLoading:', isLoading, 'isAuthenticated:', isAuthenticated);
     if (!isLoading && !isAuthenticated) {
       router.push('/login');
     }
@@ -75,8 +81,8 @@ export default function DashboardPage() {
       if (Math.random() < 0.1) { // 10% chance every 5 seconds
         const newAlert = {
           id: `alert-${Date.now()}`,
-          cameraId: mockCameras[Math.floor(Math.random() * mockCameras.length)].id,
-          cameraName: mockCameras[Math.floor(Math.random() * mockCameras.length)].name,
+          cameraId: 'CAM-001',
+          cameraName: 'Main Entrance',
           timestamp: new Date(),
           confidence: Math.random() * 40 + 60, // 60-100%
           description: 'Motion detected in monitored area',
@@ -111,16 +117,22 @@ export default function DashboardPage() {
     ));
   };
 
-  const handlePlayAudio = (audioUrl: string) => {
-    setCurrentAudioUrl(audioUrl);
-    setIsPlayingAudio(true);
-  };
 
   const handleAudioStateChange = (isPlaying: boolean) => {
     setIsPlayingAudio(isPlaying);
     if (!isPlaying) {
       setCurrentAudioUrl(undefined);
     }
+  };
+
+  const handleWebcamMotion = () => {
+    console.log('Motion detected from webcam!');
+  };
+
+  const handleWebcamAlert = (alertData: any) => {
+    console.log('Webcam alert:', alertData);
+    setWebcamAlerts(prev => [alertData, ...prev]);
+    setAlerts(prev => [alertData, ...prev]);
   };
 
   // Show loading while checking authentication
@@ -148,6 +160,17 @@ export default function DashboardPage() {
     <Layout>
       <div className="space-y-6">
         {/* Header Stats */}
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold text-foreground">Dashboard Overview</h1>
+          <a 
+            href="/test"
+            className="flex items-center space-x-2 px-4 py-2 bg-warning/20 text-warning rounded-md hover:bg-warning/30 transition-colors"
+          >
+            <AlertTriangle size={16} />
+            <span>Test Alerts</span>
+          </a>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="glassmorphism border border-border rounded-lg p-4 hover-lift transition-all duration-300">
             <div className="flex items-center justify-between">
@@ -190,6 +213,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Test Trigger Section */}
+        <div className="mb-6">
+          <TestTrigger onAlert={handleWebcamAlert} />
+        </div>
+
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Camera Grid */}
@@ -199,7 +227,22 @@ export default function DashboardPage() {
               <p className="text-sm text-muted-foreground">Live surveillance feeds from all cameras</p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Real Webcam Feed */}
+              <WebcamFeed
+                cameraId="WEBCAM-001"
+                cameraName="Laptop Webcam"
+                isOnline={true}
+                hasAlert={webcamAlerts.length > 0}
+                alertLevel={webcamAlerts.length > 0 ? 'high' : 'low'}
+                onMotionDetected={handleWebcamMotion}
+                onAlert={handleWebcamAlert}
+              />
+              
+              {/* Motion Detection Demo */}
+              <MotionDetectionDemo />
+              
+              {/* Mock Camera Feeds */}
               {mockCameras.map((camera) => (
                 <CameraFeed
                   key={camera.id}
@@ -221,6 +264,11 @@ export default function DashboardPage() {
               onAcknowledge={handleAcknowledge}
               onDismiss={handleDismiss}
             />
+            
+            {/* Login Insights - Only for Managers */}
+            {hasPermission('view_sessions') && (
+              <LoginInsights />
+            )}
             
             {/* Session Manager - Only for Managers */}
             {hasPermission('view_sessions') && (

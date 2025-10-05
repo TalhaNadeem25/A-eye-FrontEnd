@@ -11,7 +11,7 @@ interface WindowsHelloLoginProps {
   onFallback: () => void;
 }
 
-export default function WindowsHelloLogin({ onSuccess, onError, onFallback }: WindowsHelloLoginProps) {
+export default function WindowsHelloLogin({ onSuccess, onFallback }: WindowsHelloLoginProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'checking' | 'authenticating' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
@@ -34,7 +34,7 @@ export default function WindowsHelloLogin({ onSuccess, onError, onFallback }: Wi
             setDeviceInfo('Windows Hello is not configured on this device');
             setStatus('error');
           }
-        } catch (error) {
+        } catch {
           setDeviceInfo('Windows Hello is not available');
           setStatus('error');
         }
@@ -59,8 +59,13 @@ export default function WindowsHelloLogin({ onSuccess, onError, onFallback }: Wi
         throw new Error('Windows Hello is not available on this device');
       }
 
-      // Try real Windows Hello authentication
-      const user = await windowsHelloAuth.authenticate();
+      // Try real Windows Hello authentication with alternative method
+      let user = await windowsHelloAuth.authenticateWithWindowsHello();
+      
+      // Fallback to original method if needed
+      if (!user) {
+        user = await windowsHelloAuth.authenticate();
+      }
       
       if (user) {
         setStatus('success');
@@ -104,7 +109,7 @@ export default function WindowsHelloLogin({ onSuccess, onError, onFallback }: Wi
       setTimeout(() => {
         onSuccess(demoUser);
       }, 1000);
-    } catch (error) {
+    } catch {
       setStatus('error');
       setErrorMessage('Demo authentication failed.');
     } finally {
