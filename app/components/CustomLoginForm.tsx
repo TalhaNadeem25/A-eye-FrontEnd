@@ -21,34 +21,20 @@ export default function CustomLoginForm({ onSuccess, onError }: CustomLoginFormP
     setError('');
 
     try {
-      const response = await fetch('/api/auth/login-direct', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
-
-      // Login successful, redirect to dashboard
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        window.location.href = '/dashboard';
-      }
+      console.log('🔐 Starting Auth0 Universal Login...');
+      console.log('📧 Email:', email);
+      console.log('🔑 Password length:', password.length);
+      
+      // Redirect to Auth0 Universal Login with email pre-filled
+      const loginUrl = `/api/auth/[...auth0]?action=login&login_hint=${encodeURIComponent(email)}`;
+      console.log('🌐 Redirecting to Auth0:', loginUrl);
+      
+      window.location.href = loginUrl;
     } catch (err) {
+      console.error('💥 Login error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Login failed';
       setError(errorMessage);
       onError?.(errorMessage);
-    } finally {
       setIsLoading(false);
     }
   };

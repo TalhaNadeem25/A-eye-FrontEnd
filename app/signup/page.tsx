@@ -44,9 +44,11 @@ export default function SignupPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <div className="bg-primary p-3 rounded-full">
-              <Camera className="text-primary-foreground" size={32} />
-            </div>
+            <img 
+              src="/Gemini_Generated_Image_sztu51sztu51sztu.png" 
+              alt="Surveillance Dashboard Logo" 
+              className="h-16 w-16 object-contain"
+            />
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
             Surveillance Dashboard

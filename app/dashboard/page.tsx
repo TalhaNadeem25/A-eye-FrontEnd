@@ -2,28 +2,21 @@
 
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import CameraFeed from '../components/CameraFeed';
 import WebcamFeed from '../components/WebcamFeed';
+import EnhancedWebcamFeed from '../components/EnhancedWebcamFeed';
 import DirectVideoStream from '../components/DirectVideoStream';
+import ImprovedCameraFeed from '../components/ImprovedCameraFeed';
 import MotionDetectionDemo from '../components/MotionDetectionDemo';
-import TestTrigger from '../components/TestTrigger';
 import AlertPanel from '../components/AlertPanel';
+import RealTimeAlertManager from '../components/RealTimeAlertManager';
+import DynamicAlertSystem from '../components/DynamicAlertSystem';
 import AudioPlayer from '../components/AudioPlayer';
 import SessionManager from '../components/SessionManager';
 import LoginInsights from '../components/LoginInsights';
-import RoleDebug from '../components/RoleDebug';
-import Auth0Debug from '../components/Auth0Debug';
 import { Activity, Camera, AlertTriangle, Users } from 'lucide-react';
 import { useAuth0 } from '../contexts/Auth0Context';
 import { useRouter } from 'next/navigation';
 
-// Mock data for demonstration
-const mockCameras = [
-  { id: 'CAM-001', name: 'Main Entrance', isOnline: true, hasAlert: true, alertLevel: 'high' as const },
-  { id: 'CAM-002', name: 'Parking Lot', isOnline: true, hasAlert: false, alertLevel: 'low' as const },
-  { id: 'CAM-003', name: 'Reception Area', isOnline: true, hasAlert: true, alertLevel: 'medium' as const },
-  { id: 'CAM-004', name: 'Back Office', isOnline: false, hasAlert: false, alertLevel: 'low' as const },
-];
 
 const mockAlerts = [
   {
@@ -61,11 +54,29 @@ const mockAlerts = [
   },
 ];
 
+interface DynamicAlert {
+  id: string;
+  cameraId: string;
+  cameraName: string;
+  timestamp: Date;
+  confidence: number;
+  description: string;
+  imageUrl: string;
+  audioUrl?: string;
+  status: 'new' | 'acknowledged' | 'dismissed';
+  alertType: 'motion' | 'person' | 'vehicle' | 'suspicious' | 'connection_lost';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+}
+
 export default function DashboardPage() {
-  const [alerts, setAlerts] = useState(mockAlerts);
+  const [alerts, setAlerts] = useState<DynamicAlert[]>([]);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [currentAudioUrl, setCurrentAudioUrl] = useState<string | undefined>();
   const [webcamAlerts, setWebcamAlerts] = useState<any[]>([]);
+  const [cameraStatus, setCameraStatus] = useState<Record<string, { isOnline: boolean; hasAlert: boolean }>>({
+    'EXT-001': { isOnline: true, hasAlert: false },
+    'WEBCAM-001': { isOnline: true, hasAlert: false }
+  });
   const { hasPermission, isAuthenticated, isLoading } = useAuth0();
   const router = useRouter();
 
@@ -77,28 +88,37 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, isLoading, router]);
 
-  // Simulate real-time updates
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // Simulate new alerts occasionally
-      if (Math.random() < 0.1) { // 10% chance every 5 seconds
-        const newAlert = {
-          id: `alert-${Date.now()}`,
-          cameraId: 'CAM-001',
-          cameraName: 'Main Entrance',
-          timestamp: new Date(),
-          confidence: Math.random() * 40 + 60, // 60-100%
-          description: 'Motion detected in monitored area',
-          imageUrl: '/api/placeholder/400/300?text=Motion+Detected',
-          audioUrl: '/api/audio/motion-alert.mp3',
-          status: 'new' as const,
-        };
-        setAlerts(prev => [newAlert, ...prev]);
+  // Handle dynamic alerts from cameras
+  const handleDynamicAlert = (alert: DynamicAlert) => {
+    console.log('🚨 New dynamic alert received:', alert);
+    setAlerts(prev => [alert, ...prev]);
+    
+    // Update camera status
+    setCameraStatus(prev => ({
+      ...prev,
+      [alert.cameraId]: {
+        ...(prev[alert.cameraId] || { isOnline: true, hasAlert: false }),
+        hasAlert: true
       }
-    }, 5000);
+    }));
+    
+    // Play audio if available
+    if (alert.audioUrl) {
+      setCurrentAudioUrl(alert.audioUrl);
+    }
+  };
 
-    return () => clearInterval(interval);
-  }, []);
+  // Handle motion detection from cameras
+  const handleMotionDetected = (cameraId: string) => {
+    console.log('🎯 Motion detected from camera:', cameraId);
+    setCameraStatus(prev => ({
+      ...prev,
+      [cameraId]: {
+        ...(prev[cameraId] || { isOnline: true, hasAlert: false }),
+        hasAlert: true
+      }
+    }));
+  };
 
   const handleAcknowledge = (alertId: string) => {
     if (!hasPermission('acknowledge_alerts')) return;
@@ -120,6 +140,14 @@ export default function DashboardPage() {
     ));
   };
 
+  const handleClearAll = () => {
+    setAlerts([]);
+    setCameraStatus(prev => ({
+      'EXT-001': { isOnline: true, hasAlert: false },
+      'WEBCAM-001': { isOnline: true, hasAlert: false }
+    }));
+  };
+
 
   const handleAudioStateChange = (isPlaying: boolean) => {
     setIsPlayingAudio(isPlaying);
@@ -130,6 +158,7 @@ export default function DashboardPage() {
 
   const handleWebcamMotion = () => {
     console.log('Motion detected from webcam!');
+    handleMotionDetected('WEBCAM-001');
   };
 
   const handleWebcamAlert = (alertData: any) => {
@@ -155,7 +184,7 @@ export default function DashboardPage() {
     return null;
   }
 
-  const onlineCameras = mockCameras.filter(camera => camera.isOnline).length;
+  const onlineCameras = 2; // SentinelAI + Webcam
   const newAlertsCount = alerts.filter(alert => alert.status === 'new').length;
   const totalAlerts = alerts.length;
 
@@ -163,15 +192,8 @@ export default function DashboardPage() {
     <Layout>
       <div className="space-y-6">
         {/* Header Stats */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4">
           <h1 className="text-2xl font-bold text-foreground">Dashboard Overview</h1>
-          <a 
-            href="/test"
-            className="flex items-center space-x-2 px-4 py-2 bg-warning/20 text-warning rounded-md hover:bg-warning/30 transition-colors"
-          >
-            <AlertTriangle size={16} />
-            <span>Test Alerts</span>
-          </a>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -179,7 +201,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Online Cameras</p>
-                <p className="text-2xl font-bold text-foreground">{onlineCameras}/{mockCameras.length}</p>
+                <p className="text-2xl font-bold text-foreground">{onlineCameras}/2</p>
               </div>
               <Camera className="text-primary" size={24} />
             </div>
@@ -216,75 +238,62 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Test Trigger Section */}
-        <div className="mb-6">
-          <TestTrigger onAlert={handleWebcamAlert} />
-        </div>
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Camera Grid */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3 max-w-full overflow-hidden">
             <div className="mb-4">
               <h2 className="text-xl font-semibold text-foreground mb-2">Camera Feeds</h2>
               <p className="text-sm text-muted-foreground">Live surveillance feeds from all cameras</p>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {/* External Security Camera */}
-              <DirectVideoStream
-                cameraId="EXT-001"
-                cameraName="Sentinel AI Security Camera"
-                cameraUrl="https://sentinelai.crisiscopilot.tech/video_feed"
-                isOnline={true}
-                hasAlert={false}
-                alertLevel="low"
-                onMotionDetected={handleWebcamMotion}
-                onAlert={handleWebcamAlert}
-              />
-              
-              {/* Real Webcam Feed */}
-              <WebcamFeed
-                cameraId="WEBCAM-001"
-                cameraName="Laptop Webcam"
-                isOnline={true}
-                hasAlert={webcamAlerts.length > 0}
-                alertLevel={webcamAlerts.length > 0 ? 'high' : 'low'}
-                onMotionDetected={handleWebcamMotion}
-                onAlert={handleWebcamAlert}
-              />
-              
-              {/* Motion Detection Demo */}
-              <MotionDetectionDemo />
-              
-              {/* Mock Camera Feeds */}
-              {mockCameras.map((camera) => (
-                <CameraFeed
-                  key={camera.id}
-                  cameraId={camera.id}
-                  cameraName={camera.name}
-                  isOnline={camera.isOnline}
-                  hasAlert={camera.hasAlert}
-                  alertLevel={camera.alertLevel}
+            <div className="space-y-6">
+              {/* External Security Camera - Top */}
+              <div className="space-y-4 min-w-0">
+                <div className="min-h-[500px] w-full">
+                  <ImprovedCameraFeed
+                    cameraId="EXT-001"
+                    cameraName="Security Camera"
+                    cameraUrl="https://sentinelai.crisiscopilot.tech/video_feed"
+                    isOnline={cameraStatus['EXT-001'].isOnline}
+                    hasAlert={cameraStatus['EXT-001'].hasAlert}
+                    alertLevel={cameraStatus['EXT-001'].hasAlert ? 'high' : 'low'}
+                    onMotionDetected={() => handleMotionDetected('EXT-001')}
+                    onAlert={handleWebcamAlert}
+                  />
+                </div>
+                <DynamicAlertSystem
+                  cameraId="EXT-001"
+                  cameraName="Security Camera"
+                  cameraUrl="https://sentinelai.crisiscopilot.tech/video_feed"
+                  isOnline={cameraStatus['EXT-001'].isOnline}
+                  onAlert={handleDynamicAlert}
+                  onMotionDetected={() => handleMotionDetected('EXT-001')}
                 />
-              ))}
+              </div>
+              
+              {/* Webcam Motion Detection - Bottom */}
+              <div className="min-h-[500px] min-w-0">
+                <MotionDetectionDemo 
+                  onMotionDetected={handleWebcamMotion}
+                  onAlert={handleWebcamAlert}
+                />
+              </div>
+              
             </div>
           </div>
 
           {/* Right Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Alerts Panel */}
-            <AlertPanel
+          <div className="lg:col-span-1 space-y-6 min-w-0">
+            {/* Real-Time Alerts Panel */}
+            <RealTimeAlertManager
               alerts={alerts}
               onAcknowledge={handleAcknowledge}
               onDismiss={handleDismiss}
+              onClearAll={handleClearAll}
             />
             
-            {/* Auth0 Debug - Temporary for debugging */}
-            <Auth0Debug />
-            
-            {/* Role Debug - Temporary for debugging */}
-            <RoleDebug />
             
             {/* Login Insights - Only for Managers */}
             {hasPermission('view_sessions') && (

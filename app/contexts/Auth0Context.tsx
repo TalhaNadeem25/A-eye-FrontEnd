@@ -56,10 +56,14 @@ export function Auth0Provider({ children }: { children: ReactNode }) {
     // Check for Auth0 user in localStorage or session
     const checkAuth0User = async () => {
       try {
+        console.log('🔍 Checking Auth0 user authentication...');
         // Check if user is authenticated with Auth0
         const response = await fetch('/api/auth/me');
+        console.log('📡 /api/auth/me response status:', response.status);
+        
         if (response.ok) {
           const auth0User = await response.json();
+          console.log('✅ Auth0 user found:', auth0User);
           
           // Get role from multiple possible sources
           let userRole: UserRole = 'operator';
@@ -81,24 +85,28 @@ export function Auth0Provider({ children }: { children: ReactNode }) {
             userRole = auth0User.role as UserRole;
           }
           
-          console.log('User role determined:', userRole, 'from user data:', auth0User);
+          console.log('👤 User role determined:', userRole, 'from user data:', auth0User);
           
           const userData: Auth0User = {
-            id: auth0User.sub || '',
+            id: auth0User.id || auth0User.sub || '',
             email: auth0User.email || '',
             name: auth0User.name || '',
             role: userRole,
             avatar: auth0User.picture,
             lastLogin: new Date(),
-            sessionId: auth0User.sub || '',
+            sessionId: auth0User.id || auth0User.sub || '',
             ipAddress: '192.168.1.100',
             location: 'Austin, TX',
             device: navigator.userAgent.includes('Chrome') ? 'Chrome' : 'Other Browser'
           };
           setUser(userData);
+        } else if (response.status === 401) {
+          console.log('🔒 User not authenticated (401) - this is normal for logged out users');
+        } else {
+          console.log('❌ Unexpected response status:', response.status);
         }
       } catch (error) {
-        console.log('No Auth0 user found');
+        console.log('💥 Error checking Auth0 user:', error);
       } finally {
         setIsLoading(false);
       }

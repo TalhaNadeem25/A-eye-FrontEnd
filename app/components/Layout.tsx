@@ -51,10 +51,14 @@ export default function Layout({ children }: LayoutProps) {
             >
               {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
-            <div className="flex items-center space-x-2">
-              <Camera className="text-primary" size={24} />
+            <div className="flex items-center space-x-3">
+              <img 
+                src="/Gemini_Generated_Image_sztu51sztu51sztu.png" 
+                alt="A-Eye Logo" 
+                className="h-8 w-8 object-contain"
+              />
               <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent">
-                Surveillance Dashboard
+                A-Eye
               </h1>
             </div>
           </div>
