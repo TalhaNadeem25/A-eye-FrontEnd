@@ -1,0 +1,35 @@
+# Ignore files to reduce deployment size
+node_modules
+.next
+.git
+*.log
+.env.local
+.env.production.local
+.env.development.local
+
+# Documentation files
+*.md
+BIOMETRIC_AUTH_SETUP.md
+AUTH0_MAIN_AUTHENTICATION.md
+AUTH0_SETUP_GUIDE.md
+AUTH0_SIMPLE_SETUP.md
+CUSTOM_AUTH0_PAGES_GUIDE.md
+CUSTOM_AUTH_SYSTEM.md
+FIXED_SIGNUP_SYSTEM.md
+YOUR_AUTH0_SETUP.md
+WEBAUTHN_FIX_GUIDE.md
+EMAIL_PASSWORDLESS_SETUP.md
+PRODUCTION_AUTH0_SETUP.md
+AUTH0_VERCEL_FIX.md
+
+# Backup files
+Backup/
+*.backup
+
+# IDE files
+.vscode
+.idea
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -12,6 +12,7 @@ import AudioPlayer from '../components/AudioPlayer';
 import SessionManager from '../components/SessionManager';
 import LoginInsights from '../components/LoginInsights';
 import RoleDebug from '../components/RoleDebug';
+import Auth0Debug from '../components/Auth0Debug';
 import { Activity, Camera, AlertTriangle, Users } from 'lucide-react';
 import { useAuth0 } from '../contexts/Auth0Context';
 import { useRouter } from 'next/navigation';
@@ -278,6 +279,9 @@ export default function DashboardPage() {
               onAcknowledge={handleAcknowledge}
               onDismiss={handleDismiss}
             />
+            
+            {/* Auth0 Debug - Temporary for debugging */}
+            <Auth0Debug />
             
             {/* Role Debug - Temporary for debugging */}
             <RoleDebug />
